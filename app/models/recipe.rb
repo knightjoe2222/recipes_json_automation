@@ -44,10 +44,10 @@ class Recipe < ApplicationRecord
 			begin
 				thumbnail = newobj["value"][0]["thumbnailUrl"].chomp('&pid=Api')
 				js["recipes"][k]["imageURL"] = thumbnail
-				puts "Added imageURL to " + k
+				puts "Added imageURL to #{k}"
 				i = i + 1
 			rescue
-				puts "Bad server response at " + k "... skipping for now"
+				puts "Bad server response at #{k}... skipping for now"
 			end
 			
 		}

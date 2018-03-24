@@ -45,14 +45,11 @@ class Recipe < ApplicationRecord
 				thumbnail = newobj["value"][0]["thumbnailUrl"].chomp('&pid=Api')
 				js["recipes"][k]["imageURL"] = thumbnail
 				puts "Added imageURL to " + k
+				i = i + 1
 			rescue
-				puts "Writing new file..."
-				File.open("public/temp.json","w") do |f|
-				  f.write(JSON.pretty_generate(js))
-				end	
-				puts "New file successfully built"
+				puts "Bad server response at " + k "... skipping for now"
 			end
-			i = i + 1
+			
 		}
 		puts "Writing new file.. (final)."
 		File.open("public/temp.json","w") do |f|

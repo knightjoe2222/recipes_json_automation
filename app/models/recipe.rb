@@ -57,5 +57,65 @@ class Recipe < ApplicationRecord
 		end	
 		puts "New file successfully built"
     end
+    def self.generate_recipe_obj
+    	file = File.read('public/temp.json')
+    	recipe = Recipe.new(id: 0, title: file)
+    	recipe.save
+    end
+	def self.import_pictures_to_database
+    	# **********************************************
+		# *** Update or verify the following values. ***
+		# **********************************************
+		
+		# Replace the accessKey string value with your valid access key.
+		accessKey = "961bc5b2bb8e48c3885cb603219907b7"
+
+		uri = URI('https://api.cognitive.microsoft.com/bing/v7.0/images/search')
+		recipe = Recipe.find(0)
+		js = JSON.parse(recipe.title)
+		i = 0
+		puts "Picking up where left off..."
+		#puts JSON.pretty_generate(js)
+
+		js["recipes"].each { |k, v|
+			break if i >= 10
+			#puts "Key=#{k}\n Value=#{v}"
+			next if (js["recipes"][k]['imageURL'] != "")
+			
+			term = js["recipes"][k]["title"].downcase.gsub(/[^a-z0-9\s]/i, '')
+
+			uri.query = URI.encode_www_form({
+			    # Request parameters
+			    'q' => term,
+			    'count' => '2',
+			    'offset' => '0',
+			    'mkt' => 'en-us',
+			    'safeSearch' => 'Moderate'
+			})
+
+			request = Net::HTTP::Get.new(uri.request_uri)
+			# Request headers
+			request['Ocp-Apim-Subscription-Key'] = accessKey
+			
+			response = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') do |http|
+			    http.request(request)
+			end
+
+			newobj = JSON.parse(response.body)
+
+			begin
+				thumbnail = newobj["value"][0]["thumbnailUrl"].chomp('&pid=Api')
+				js["recipes"][k]["imageURL"] = thumbnail
+				puts "Added imageURL to #{k}"
+				i = i + 1
+			rescue
+				puts "Bad server response at #{k}... skipping for now"
+			end
+			
+		}
+		puts "Updating database.. (final)."
+		recipe.update_attributes(title: JSON.generate(js))
+		puts "Recipe object successfully updated"
+    end
 
 end

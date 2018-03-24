@@ -2,4 +2,4 @@
 
 <h1>Recipes</h1>
 
-<a href="/temp.json">Click for most recently automated recipes json</a> (<%= File.mtime("public/temp.json").strftime("%m-%e-%y %I:%M %p") %>)
+<a href="/recipes/recipe">Click for most recently automated recipes json</a> (<%= Recipe.first.updated_at.strftime("%m-%e-%y %I:%M %p") %>)

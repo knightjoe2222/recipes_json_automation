@@ -20,7 +20,7 @@ class Recipe < ApplicationRecord
 			#puts "Key=#{k}\n Value=#{v}"
 			next if (js["recipes"][k]['imageURL'] != "")
 			
-			term = js["recipes"][k]["title"]
+			term = js["recipes"][k]["title"].downcase.gsub(/[^a-z0-9\s]/i, '')
 
 			uri.query = URI.encode_www_form({
 			    # Request parameters

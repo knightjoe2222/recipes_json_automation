@@ -121,20 +121,33 @@ class Recipe < ApplicationRecord
 
     def self.generate
 		file = File.read('public/ingredients_and_recipes.json')
-		js = JSON.parse(file)
+		all = JSON.parse(file)
+
+		file = File.read('public/ingredients.json')
+		ings = JSON.parse(file)
 		i = 0
-		js['ingredients'].each{ |k, v|
-			break if i >= 10
-			
-			ingname = v["name"].gsub(/[^a-zA-Z0-9\-]/,"").downcase
+		all['ingredients'].each{ |k, v|
+			ings['ingredientRecipes'][k]['recipesUsing'] = {};
+			ingname = v['name'].downcase.gsub(/[^a-z]/,'')
 			puts "Filtered ingredient name: " + ingname
-			js['recipes'].each{ |k, v|
-				v['cookingIngredients'].each{ |k, v|
-					listedname = ""
+
+			all['recipes'].each{ |ktwo, vtwo|
+				vtwo['cookingIngredients'].each { |x|
+					listname = x.downcase.gsub(/[^a-z]/,'')
+					if listname.include? ingname
+						puts "RECIPE FOUND. ADDING TO RECIPESUSING:"
+						ings['ingredientRecipes'][k]['recipesUsing'][ktwo] = vtwo['title'];
+						break
+					end
 				}
 			}
 			i = i+1
 		}
+		puts "Writing new file.. (final)."
+		File.open("public/ingredientRecipes.json","w") do |f|
+		  f.write(JSON.generate(ings))
+		end	
+		puts "New file successfully built"
     end
 
     def self.convert

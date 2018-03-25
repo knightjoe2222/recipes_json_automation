@@ -58,7 +58,8 @@ class Recipe < ApplicationRecord
 		puts "New file successfully built"
     end
     def self.generate_recipe_obj
-    	file = File.read('public/temp.json')
+    	Recipe.delete_all
+    	file = File.read('public/recipes.json')
     	recipe = Recipe.new(id: 0, title: file)
     	recipe.save
     end

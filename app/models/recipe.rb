@@ -118,4 +118,40 @@ class Recipe < ApplicationRecord
 		puts "Recipe object successfully updated"
     end
 
+    def self.generate
+		file = File.read('public/ingredients_and_recipes.json')
+		js = JSON.parse(file)
+		i = 0
+		js['ingredients'].each{ |k, v|
+			break if i >= 10
+			
+			ingname = v["name"].gsub(/[^a-zA-Z0-9\-]/,"").downcase
+			puts "Filtered ingredient name: " + ingname
+			js['recipes'].each{ |k, v|
+				v['cookingIngredients'].each{ |k, v|
+					listedname = ""
+				}
+			}
+			i = i+1
+		}
+    end
+
+    def self.convert
+    	file = File.read('public/somewhat_completed.json');
+		old = JSON.parse(file);
+		file = File.read('public/recipes.json');
+		newjs = JSON.parse(file);
+		i = 0
+		old['recipes'].each{ |k, v|
+			break if i >= 420
+			if (v['imageURL'] != "")
+				newjs["recipes"][k]["imageURL"] = v['imageURL']
+			end
+			i = i+1
+		}
+		puts "Writing new file.. (final)."
+		File.open("public/recipes.json","w") do |f|
+		  f.write(JSON.pretty_generate(newjs))
+		end
+    end
 end
